@@ -1,0 +1,9 @@
+(detector
+    (extension g))
+
+(folding
+    (start [/\*(?!\*/)|\{\s*$])
+    (stop [\*/|^\s*\}]))
+
+(in keyword.control.label.antlr
+    (symbol-list))

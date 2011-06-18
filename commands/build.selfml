@@ -1,0 +1,27 @@
+(trigger
+    (key [[cmd]B]))
+
+(name Build)
+
+(only-in [source.antlr, source.antlr source.java])
+
+(input nothing)
+
+(output tooltip)
+
+(save file)
+
+(script [# To install ANTLR via MacPorts
+# 1. sudo port install antlr
+# 2. set TM_ANTLR to -classpath /opt/local/lib/antlr.jar antlr/Tool
+
+TM_JAVA=$(type -p "${TM_JAVA:-java}")
+TM_ANTLR="${TM_ANTLR:-org.antlr.Tool}"
+
+cd "$TM_DIRECTORY"
+
+# for this to work you need to set CLASSPATH to
+# include antlr v3, v2, and StringTemplate jars
+# or set TM_ANTLR to include a proper -classpath
+"$TM_JAVA" $TM_ANTLR "$TM_FILENAME"
+])

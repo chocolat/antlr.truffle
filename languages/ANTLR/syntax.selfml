@@ -1,0 +1,165 @@
+(root source.antlr
+    (include @strings)
+    (include @comments)
+    (zone meta.options.antlr
+        (start
+            (regex \boptions\b
+                (0 keyword.other.options.antlr)))
+        (end
+            (regex [(?<=\})]))
+        (subzones
+            (zone meta.options-block.antlr
+                (start
+                    (regex [\{]
+                        (0 punctuation.section.options.antlr)))
+                (end
+                    (regex [\}]
+                        (0 punctuation.section.options.antlr)))
+                (subzones
+                    (include @strings)
+                    (include @comments)
+                    (zone constant.numeric.antlr
+                        (match
+                            (regex \b\d+\b)))
+                    (zone variable.other.option.antlr
+                        (match
+                            (list k charVocabulary filter greedy paraphrase exportVocab buildAST defaultErrorHandler language namespace namespaceStd namespaceAntlr genHashLines)
+                            (boundary.both)))
+                    (zone constant.language.boolean.antlr
+                        (match
+                            (list true false)
+                            (boundary.both)))))))
+    (zone meta.definition.class.antlr
+        (start
+            (regex [^(class)\b\s+(\w+)]
+                (1 storage.type.antlr)
+                (2 entity.name.type.class.antlr)))
+        (end
+            (regex ;
+                (1 storage.type.antlr)
+                (2 entity.name.type.class.antlr)))
+        (subzones
+            (zone meta.definition.class.extends.antlr
+                (start
+                    (regex [\b(extends)\b\s+]
+                        (1 storage.modifier.antlr)))
+                (end
+                    (regex [(?=;)]
+                        (1 storage.modifier.antlr)))
+                (subzones
+                    (zone support.class.antlr
+                        (match
+                            (list Parser Lexer TreeWalker)
+                            (boundary.both)))))))
+    (zone storage.modifier.antlr
+        (match protected
+            (anchor.left)
+            (boundary.right)))
+    (zone entity.name.type.token.antlr
+        (match
+            (regex [^[[:upper:]_][[:upper:][:digit:]_]*\b])))
+    (zone meta.rule.antlr
+        (match
+            (regex [^(\w+)(?:\s+(returns\b))?]
+                (1 entity.name.function.rule.antlr)
+                (2 keyword.control.antlr))))
+    (zone constant.other.token.antlr
+        (match
+            (regex [\b[[:upper:]_][[:upper:][:digit:]_]*\b])))
+    (include @nested-curly))
+
+(collection comments
+    (zone comment.block.antlr
+        (start
+            (regex /\*
+                (0 punctuation.definition.comment.antlr)))
+        (end
+            (regex \*/
+                (0 punctuation.definition.comment.antlr))))
+    (zone comment.line.double-slash.antlr
+        (match
+            (regex [(//).*$\n?]
+                (1 punctuation.definition.comment.antlr)))))
+
+(collection strings
+    (zone string.quoted.double.antlr
+        (start
+            (regex "
+                (0 punctuation.definition.string.begin.antlr)))
+        (end
+            (regex "
+                (0 punctuation.definition.string.end.antlr)))
+        (subzones
+            (zone constant.character.escape.antlr
+                (match
+                    (regex [\\(u\h{4}|.)])))))
+    (zone string.quoted.single.antlr
+        (start
+            (regex '
+                (0 punctuation.definition.string.begin.antlr)))
+        (end
+            (regex '
+                (0 punctuation.definition.string.end.antlr)))
+        (subzones
+            (zone constant.character.escape.antlr
+                (match
+                    (regex [\\(u\h{4}|.)]))))))
+
+(collection nested-curly
+    (zone source.embedded.java-or-c.antlr
+        (start
+            (regex [\{]
+                (0 punctuation.section.group.antlr)))
+        (end
+            (regex [\}]
+                (0 punctuation.section.group.antlr)))
+        (subzones
+            (zone keyword.control.java-or-c
+                (match
+                    (list break case continue default do else for goto if _Pragma return switch while)
+                    (boundary.both)))
+            (zone storage.type.java-or-c
+                (match
+                    (list asm __asm__ auto bool _Bool char _Complex double enum float _Imaginary int long short signed struct typedef union unsigned void)
+                    (boundary.both)))
+            (zone storage.modifier.java-or-c
+                (match
+                    (list const extern register restrict static volatile inline)
+                    (boundary.both)))
+            (zone constant.language.java-or-c
+                (match
+                    (list NULL true false TRUE FALSE)
+                    (boundary.both)))
+            (zone keyword.operator.sizeof.java-or-c
+                (match
+                    (list sizeof)
+                    (boundary.both)))
+            (zone constant.numeric.java-or-c
+                (match
+                    (regex [\b((0(x|X)[0-9a-fA-F]*)|(([0-9]+\.?[0-9]*)|(\.[0-9]+))((e|E)(\+|-)?[0-9]+)?)(L|l|UL|ul|u|U|F|f|ll|LL|ull|ULL)?\b])))
+            (zone string.quoted.double.java-or-c
+                (start
+                    (regex "
+                        (0 punctuation.definition.string.begin.java-or-c)))
+                (end
+                    (regex "
+                        (0 punctuation.definition.string.end.java-or-c)))
+                (subzones
+                    (zone constant.character.escape.antlr
+                        (match
+                            (regex \\.)))))
+            (zone string.quoted.single.java-or-c
+                (start
+                    (regex '
+                        (0 punctuation.definition.string.begin.java-or-c)))
+                (end
+                    (regex '
+                        (0 punctuation.definition.string.end.java-or-c)))
+                (subzones
+                    (zone constant.character.escape.antlr
+                        (match
+                            (regex \\.)))))
+            (zone support.constant.eof-char.antlr
+                (match EOF_CHAR
+                    (boundary.both)))
+            (include @comments))))
